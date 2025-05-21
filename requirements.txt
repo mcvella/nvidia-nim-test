@@ -1,0 +1,7 @@
+viam-sdk==0.47.0
+
+typing-extensions
+
+aiohttp
+pillow
+requests

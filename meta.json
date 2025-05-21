@@ -1,0 +1,28 @@
+{
+  "$schema": "https://dl.viam.dev/module.schema.json",
+  "module_id": "nvidia-demo:nvidia-nim-test",
+  "visibility": "private",
+  "url": "",
+  "description": "Modular vision service: nvidia-nim-test",
+  "models": [
+    {
+      "api": "rdk:service:vision",
+      "model": "nvidia-demo:service:nvidia-nim-test",
+      "short_description": "Testing Nvidia NIM service",
+      "markdown_link": "README.md#configure-your-vision-service"
+    }
+  ],
+  "applications": null,
+  "markdown_link": "README.md",
+  "entrypoint": "./run.sh",
+  "first_run": "",
+  "build": {
+    "build": "./build.sh",
+    "setup": "./setup.sh",
+    "path": "dist/archive.tar.gz",
+    "arch": [
+      "linux/amd64",
+      "linux/arm64"
+    ]
+  }
+}
