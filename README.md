@@ -99,6 +99,7 @@ The `nvidia-demo:service:nvidia-nim-test` resource provides the following method
 *   `image`: The `ViamImage` to classify.
 *   `count`: This parameter is not strictly used by the NVIDIA API in the same way as some classifiers that return N top results with scores. The service will return the classification provided by the model.
 *   `extra` (Optional): A dictionary where you can provide a custom `question` for the image. If no `question` is provided in `extra`, the `default_question` from the attributes will be used.
+    *   **Special YES/NO Question Handling**: If you format your question as `"Is this a <description>? Answer YES or NO."` (or `"Is this an <description>, Answer YES or NO."`), the service will attempt to parse this. If the NVIDIA API responds affirmatively (e.g., "YES", "Yes, it is..."), the returned `Classification` will have its `class_name` set to the `<description>` you provided (e.g., "a man wearing glasses"). If the API responds negatively (e.g., "NO"), no classification will be returned for this specific query. For all other question formats, the raw text response from the API will be used as the `class_name`.
 
     Example (Python SDK):
     ```python
@@ -118,6 +119,7 @@ The `nvidia-demo:service:nvidia-nim-test` resource provides the following method
 *   Captures an image from the specified camera and then calls `get_classifications` with that image.
 *   `camera_name`: The name of the camera component to use (must be listed in the `cameras` attribute and `depends_on` for the service).
 *   The `count` and `extra` parameters behave the same as in `get_classifications`.
+    *   **Special YES/NO Question Handling**: (See description under `get_classifications` for details on how questions like `"Is this a <description>? Answer YES or NO."` are processed).
 
     Example (Python SDK):
     ```python

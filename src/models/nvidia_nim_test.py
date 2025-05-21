@@ -4,6 +4,7 @@ import asyncio
 import base64
 import io
 import aiohttp
+import re # Added import for regular expressions
 
 from PIL import Image
 
@@ -110,11 +111,32 @@ class NvidiaNimTest(Vision, EasyResource):
 
         classifications = []
         if response_data and "choices" in response_data and len(response_data["choices"]) > 0:
-            content = response_data["choices"][0]["message"]["content"]
-            # The API returns a string, we'll use this as the classification label
-            # For now, we'll assume a confidence of 1.0. 
-            # You might want to parse this further if the API gives more structured output.
-            classifications.append(Classification(class_name=content.strip(), confidence=1.0))
+            api_content = response_data["choices"][0]["message"]["content"]
+
+            # Check for the specific question pattern: "Is this a <description>, answer YES or NO."
+            # Regex is case-insensitive for the fixed parts of the question.
+            # Allows for ',' or '?' before 'answer YES or NO'.
+            pattern = r"Is this an? (.*?)(?:,|\?)\s*answer YES or NO\.?"
+            match = re.fullmatch(pattern, question, re.IGNORECASE)
+
+            if match:
+                description = match.group(1).strip() # This is the <description> part
+                
+                # Enhanced normalization:
+                # 1. Lowercase
+                # 2. Strip leading/trailing whitespace
+                # 3. Strip common trailing punctuation
+                # 4. Strip leading/trailing markdown bold/italic markers (* and _)
+                normalized_api_response = api_content.lower().strip().rstrip('.!?')
+                normalized_api_response = normalized_api_response.strip('*_')
+                
+                # Check if the normalized response STARTS WITH "yes"
+                if normalized_api_response.startswith("yes"):
+                    classifications.append(Classification(class_name=description, confidence=1.0))
+                # If not starting with "yes" (e.g., starts with "no" or other), classifications list remains empty.
+            else:
+                # Original behavior: use the full API response as the classification if question pattern doesn't match
+                classifications.append(Classification(class_name=api_content.strip(), confidence=1.0))
         
         return classifications
 
